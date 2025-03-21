@@ -8,6 +8,20 @@ public class Game1 : Game
 {
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
+    private readonly int screenHeight = 1080;
+    private readonly int screenWidth = 1920;
+
+    // Get Player Textures
+    private Texture2D _texturePlayer;
+    private Texture2D _textureWalkDown;
+    private Texture2D _textureWalkUp;
+    private Texture2D _textureWalkLeft;
+    private Texture2D _textureWalkRight;
+
+    // Get Other Textures
+    private Texture2D _textureBackground;
+    private Texture2D _textureBall;
+    private Texture2D _textureSkull;
 
     public Game1()
     {
@@ -18,7 +32,9 @@ public class Game1 : Game
 
     protected override void Initialize()
     {
-        // TODO: Add your initialization logic here
+        _graphics.PreferredBackBufferWidth = screenWidth; // Width of the screen
+        _graphics.PreferredBackBufferHeight = screenHeight; // Height of the screen
+        _graphics.ApplyChanges();
 
         base.Initialize();
     }
@@ -27,12 +43,25 @@ public class Game1 : Game
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
 
-        // TODO: use this.Content to load your game content here
+        // Load Textures
+        _texturePlayer = Content.Load<Texture2D>("Player/player");
+        _textureWalkDown = Content.Load<Texture2D>("Player/walkDown");
+        _textureWalkUp = Content.Load<Texture2D>("Player/walkUp");
+        _textureWalkLeft = Content.Load<Texture2D>("Player/walkLeft");
+        _textureWalkRight = Content.Load<Texture2D>("Player/walkRight");
+        _textureBackground = Content.Load<Texture2D>("background");
+        _textureBall = Content.Load<Texture2D>("ball");
+        _textureSkull = Content.Load<Texture2D>("skull");
+
+        // Load the Player
     }
 
     protected override void Update(GameTime gameTime)
     {
-        if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+        if (
+            GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed
+            || Keyboard.GetState().IsKeyDown(Keys.Escape)
+        )
             Exit();
 
         // TODO: Add your update logic here
@@ -44,7 +73,9 @@ public class Game1 : Game
     {
         GraphicsDevice.Clear(Color.CornflowerBlue);
 
-        // TODO: Add your drawing code here
+        _spriteBatch.Begin();
+        _spriteBatch.Draw(_textureBackground, new Vector2(0, 0), Color.White);
+        _spriteBatch.End();
 
         base.Draw(gameTime);
     }
