@@ -6,50 +6,131 @@ namespace RPG.Physical
 {
     public class Player
     {
-        // Properties
-        public Vector2 Position { get; private set; } // Player's position
-        public Texture2D Texture { get; private set; } // Player's sprite texture
-        public float Speed { get; set; } = 200f; // Movement speed in pixels per second
-        public Rectangle Bounds =>
-            new Rectangle((int)Position.X, (int)Position.Y, Texture.Width, Texture.Height); // Bounding box for collision
+        private readonly Texture2D _texturePlayer; // Stationary texture
+        private readonly Texture2D _textureUp;
+        private readonly Texture2D _textureDown;
+        private readonly Texture2D _textureLeft;
+        private readonly Texture2D _textureRight;
+        private Vector2 _position;
+        private readonly Rectangle[] _upFrames;
+        private readonly Rectangle[] _downFrames;
+        private readonly Rectangle[] _leftFrames;
+        private readonly Rectangle[] _rightFrames;
+        private int _currentFrame;
+        private double _timeSinceLastFrame;
+        private const double FrameTime = 0.1; // Time between frames in seconds
+        private Rectangle _sourceRectangle;
+        private Vector2 _origin;
+        private readonly int _frameSize;
+        private Texture2D _currentTexture;
 
-        // Constructor
-        public Player(Texture2D texture, Vector2 position)
+        public Player(
+            Texture2D texturePlayer, // Stationary texture
+            Texture2D textureUp,
+            Texture2D textureDown,
+            Texture2D textureLeft,
+            Texture2D textureRight,
+            Vector2 position,
+            int frameSize
+        )
         {
-            Texture = texture;
-            Position = position;
+            _texturePlayer = texturePlayer;
+            _textureUp = textureUp;
+            _textureDown = textureDown;
+            _textureLeft = textureLeft;
+            _textureRight = textureRight;
+            _position = position;
+            _currentFrame = 0;
+            _timeSinceLastFrame = 0;
+            _frameSize = frameSize;
+            _origin = new Vector2(_frameSize / 2, _frameSize / 2); // Center origin
+
+            // Initialize the frames for each direction
+            _upFrames = new Rectangle[4];
+            _downFrames = new Rectangle[4];
+            _leftFrames = new Rectangle[4];
+            _rightFrames = new Rectangle[4];
+
+            for (int i = 0; i < 4; i++)
+            {
+                _upFrames[i] = new Rectangle(i * _frameSize, 0, _frameSize, _frameSize);
+                _downFrames[i] = new Rectangle(i * _frameSize, 0, _frameSize, _frameSize);
+                _leftFrames[i] = new Rectangle(i * _frameSize, 0, _frameSize, _frameSize);
+                _rightFrames[i] = new Rectangle(i * _frameSize, 0, _frameSize, _frameSize);
+            }
+
+            _sourceRectangle = new Rectangle(0, 0, _frameSize, _frameSize); // Default frame
+            _currentTexture = _texturePlayer; // Default to stationary texture
         }
 
-        // Update method (handles input and movement)
         public void Update(GameTime gameTime)
         {
-            // Get the keyboard state
             var keyboardState = Keyboard.GetState();
 
-            // Calculate movement direction
-            Vector2 direction = Vector2.Zero;
-
-            if (keyboardState.IsKeyDown(Keys.W)) // Move up
-                direction.Y -= 1;
-            if (keyboardState.IsKeyDown(Keys.S)) // Move down
-                direction.Y += 1;
-            if (keyboardState.IsKeyDown(Keys.A)) // Move left
-                direction.X -= 1;
-            if (keyboardState.IsKeyDown(Keys.D)) // Move right
-                direction.X += 1;
-
-            // Normalize the direction vector to prevent faster diagonal movement
-            if (direction != Vector2.Zero)
-                direction.Normalize();
-
-            // Update position based on direction, speed, and elapsed time
-            Position += direction * Speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            // Handle movement and animation
+            if (keyboardState.IsKeyDown(Keys.Up))
+            {
+                _position.Y -= 2;
+                Animate(gameTime, _upFrames);
+                _currentTexture = _textureUp;
+            }
+            else if (keyboardState.IsKeyDown(Keys.Down))
+            {
+                _position.Y += 2;
+                Animate(gameTime, _downFrames);
+                _currentTexture = _textureDown;
+            }
+            else if (keyboardState.IsKeyDown(Keys.Left))
+            {
+                _position.X -= 2;
+                Animate(gameTime, _leftFrames);
+                _currentTexture = _textureLeft;
+            }
+            else if (keyboardState.IsKeyDown(Keys.Right))
+            {
+                _position.X += 2;
+                Animate(gameTime, _rightFrames);
+                _currentTexture = _textureRight;
+            }
+            else
+            {
+                // Reset to the stationary texture and frame if no movement
+                _currentFrame = 0;
+                _sourceRectangle = new Rectangle(0, 0, _frameSize, _frameSize); // Stationary frame
+                _currentTexture = _texturePlayer; // Use stationary texture
+            }
         }
 
-        // Draw method (renders the player)
+        private void Animate(GameTime gameTime, Rectangle[] frames)
+        {
+            _timeSinceLastFrame += gameTime.ElapsedGameTime.TotalSeconds;
+
+            if (_timeSinceLastFrame >= FrameTime)
+            {
+                _currentFrame++;
+                if (_currentFrame >= frames.Length)
+                {
+                    _currentFrame = 0;
+                }
+
+                _sourceRectangle = frames[_currentFrame];
+                _timeSinceLastFrame = 0;
+            }
+        }
+
         public void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(Texture, Position, Color.White);
+            spriteBatch.Draw(
+                _currentTexture, // Use the current texture
+                _position,
+                _sourceRectangle,
+                Color.White,
+                0f,
+                _origin,
+                1f,
+                SpriteEffects.None,
+                0f
+            );
         }
     }
 }

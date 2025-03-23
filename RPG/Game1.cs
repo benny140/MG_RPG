@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using RPG.Physical;
 
 namespace RPG;
 
@@ -22,6 +23,9 @@ public class Game1 : Game
     private Texture2D _textureBackground;
     private Texture2D _textureBall;
     private Texture2D _textureSkull;
+
+    // Declare Physical Objects
+    private Player _player;
 
     public Game1()
     {
@@ -54,6 +58,15 @@ public class Game1 : Game
         _textureSkull = Content.Load<Texture2D>("skull");
 
         // Load the Player
+        _player = new(
+            _texturePlayer,
+            _textureWalkUp,
+            _textureWalkDown,
+            _textureWalkLeft,
+            _textureWalkRight,
+            new Vector2(100, 100),
+            96
+        );
     }
 
     protected override void Update(GameTime gameTime)
@@ -64,7 +77,8 @@ public class Game1 : Game
         )
             Exit();
 
-        // TODO: Add your update logic here
+        // Update the player
+        _player.Update(gameTime);
 
         base.Update(gameTime);
     }
@@ -74,7 +88,13 @@ public class Game1 : Game
         GraphicsDevice.Clear(Color.CornflowerBlue);
 
         _spriteBatch.Begin();
+
+        // Draw the background
         _spriteBatch.Draw(_textureBackground, new Vector2(0, 0), Color.White);
+
+        // Draw the player
+        _player.Draw(_spriteBatch);
+
         _spriteBatch.End();
 
         base.Draw(gameTime);
