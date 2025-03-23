@@ -2,6 +2,19 @@
   "version": 3,
   "targets": {
     "net8.0": {
+      "Dcrew.Camera/1.5.2": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.1/Dcrew.Camera.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.1/Dcrew.Camera.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "MonoGame.Content.Builder.Task/3.8.2.1105": {
         "type": "package",
         "build": {
@@ -102,6 +115,21 @@
     }
   },
   "libraries": {
+    "Dcrew.Camera/1.5.2": {
+      "sha512": "K4zNlbMK32+oRzgvzEJxue3gNUqOHnOGjNajpMDFTsVIz9a1pFhw6I4JFOdZCkqweYXzSt5FdoZ9RZ3+sXk2aQ==",
+      "type": "package",
+      "path": "dcrew.camera/1.5.2",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE",
+        "dcrew.camera.1.5.2.nupkg.sha512",
+        "dcrew.camera.nuspec",
+        "icon.png",
+        "lib/netstandard2.1/Dcrew.Camera.dll",
+        "lib/netstandard2.1/Dcrew.Camera.xml"
+      ]
+    },
     "MonoGame.Content.Builder.Task/3.8.2.1105": {
       "sha512": "wNlkLaITOqMs9MmCYLp3Qc7QfFng3FhIq/b+njdYV3cTVpLYgs/i56FYtJjm8jLoUA/2sJ36Qo/uqWpgW+jBuQ==",
       "type": "package",
@@ -233,6 +261,7 @@
   },
   "projectFileDependencyGroups": {
     "net8.0": [
+      "Dcrew.Camera >= 1.5.2",
       "MonoGame.Content.Builder.Task >= 3.8.2.1105",
       "MonoGame.Framework.DesktopGL >= 3.8.2.1105"
     ]
@@ -279,6 +308,10 @@
       "net8.0": {
         "targetAlias": "net8.0",
         "dependencies": {
+          "Dcrew.Camera": {
+            "target": "Package",
+            "version": "[1.5.2, )"
+          },
           "MonoGame.Content.Builder.Task": {
             "target": "Package",
             "version": "[3.8.2.1105, )"

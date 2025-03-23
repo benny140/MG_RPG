@@ -32,3 +32,4 @@ C:\Users\benja\Projects\MG_RPG\RPG\obj\Debug\net8.0\refint\RPG.dll
 C:\Users\benja\Projects\MG_RPG\RPG\obj\Debug\net8.0\RPG.pdb
 C:\Users\benja\Projects\MG_RPG\RPG\obj\Debug\net8.0\RPG.genruntimeconfig.cache
 C:\Users\benja\Projects\MG_RPG\RPG\obj\Debug\net8.0\ref\RPG.dll
+C:\Users\benja\Projects\MG_RPG\RPG\bin\Debug\net8.0\Dcrew.Camera.dll

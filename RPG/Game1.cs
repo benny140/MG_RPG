@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Dcrew.Camera;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using RPG.Physical;
@@ -11,6 +12,9 @@ public class Game1 : Game
     private SpriteBatch _spriteBatch;
     private readonly int screenHeight = 1080;
     private readonly int screenWidth = 1920;
+
+    // Declare Camera
+    private Camera _camera;
 
     // Get Player Textures
     private Texture2D _texturePlayer;
@@ -67,6 +71,9 @@ public class Game1 : Game
             new Vector2(100, 100),
             96
         );
+
+        // Initialize the camera
+        _camera = new Camera(Vector2.Zero, 0, Vector2.One);
     }
 
     protected override void Update(GameTime gameTime)
@@ -80,6 +87,18 @@ public class Game1 : Game
         // Update the player
         _player.Update(gameTime);
 
+        // Camera Start ==============================================================================
+        // Update the camera to follow the player
+        Vector2 playerPosition = _player.Position;
+        Vector2 cameraPosition = playerPosition;
+
+        // Clamp the camera position to the background bounds
+        cameraPosition.X = MathHelper.Clamp(cameraPosition.X, 0, _textureBackground.Width);
+        cameraPosition.Y = MathHelper.Clamp(cameraPosition.Y, 0, _textureBackground.Height);
+
+        _camera.XY = cameraPosition;
+        // Camera End ===============================================================================
+
         base.Update(gameTime);
     }
 
@@ -87,7 +106,9 @@ public class Game1 : Game
     {
         GraphicsDevice.Clear(Color.CornflowerBlue);
 
-        _spriteBatch.Begin();
+        // _spriteBatch.Begin();
+        // Begin drawing with the camera's view matrix
+        _spriteBatch.Begin(transformMatrix: _camera.View());
 
         // Draw the background
         _spriteBatch.Draw(_textureBackground, new Vector2(0, 0), Color.White);

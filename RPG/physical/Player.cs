@@ -11,7 +11,7 @@ namespace RPG.Physical
         private readonly Texture2D _textureDown;
         private readonly Texture2D _textureLeft;
         private readonly Texture2D _textureRight;
-        private Vector2 _position;
+        public Vector2 Position { get; private set; }
         private readonly Rectangle[] _upFrames;
         private readonly Rectangle[] _downFrames;
         private readonly Rectangle[] _leftFrames;
@@ -23,6 +23,7 @@ namespace RPG.Physical
         private Vector2 _origin;
         private readonly int _frameSize;
         private Texture2D _currentTexture;
+        private readonly float speed = 500f; // pixels per second
 
         public Player(
             Texture2D texturePlayer, // Stationary texture
@@ -39,7 +40,7 @@ namespace RPG.Physical
             _textureDown = textureDown;
             _textureLeft = textureLeft;
             _textureRight = textureRight;
-            _position = position;
+            Position = position;
             _currentFrame = 0;
             _timeSinceLastFrame = 0;
             _frameSize = frameSize;
@@ -63,32 +64,38 @@ namespace RPG.Physical
             _currentTexture = _texturePlayer; // Default to stationary texture
         }
 
+        public void SetPosition(float x, float y)
+        {
+            Position = new Vector2(x, y);
+        }
+
         public void Update(GameTime gameTime)
         {
             var keyboardState = Keyboard.GetState();
+            float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
             // Handle movement and animation
             if (keyboardState.IsKeyDown(Keys.Up))
             {
-                _position.Y -= 2;
+                SetPosition(Position.X, Position.Y - speed * deltaTime);
                 Animate(gameTime, _upFrames);
                 _currentTexture = _textureUp;
             }
             else if (keyboardState.IsKeyDown(Keys.Down))
             {
-                _position.Y += 2;
+                SetPosition(Position.X, Position.Y + speed * deltaTime);
                 Animate(gameTime, _downFrames);
                 _currentTexture = _textureDown;
             }
             else if (keyboardState.IsKeyDown(Keys.Left))
             {
-                _position.X -= 2;
+                SetPosition(Position.X - speed * deltaTime, Position.Y);
                 Animate(gameTime, _leftFrames);
                 _currentTexture = _textureLeft;
             }
             else if (keyboardState.IsKeyDown(Keys.Right))
             {
-                _position.X += 2;
+                SetPosition(Position.X + speed * deltaTime, Position.Y);
                 Animate(gameTime, _rightFrames);
                 _currentTexture = _textureRight;
             }
@@ -122,7 +129,7 @@ namespace RPG.Physical
         {
             spriteBatch.Draw(
                 _currentTexture, // Use the current texture
-                _position,
+                Position,
                 _sourceRectangle,
                 Color.White,
                 0f,
