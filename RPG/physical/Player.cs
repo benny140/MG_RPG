@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -24,6 +27,14 @@ namespace RPG.Physical
         private readonly int _frameSize;
         private Texture2D _currentTexture;
         private readonly float speed = 500f; // pixels per second
+
+        // Projectile Fields
+        private Texture2D _projectileTexture;
+        private List<Projectile> _projectiles = new List<Projectile>();
+        private float _shootCooldown = 0.2f;
+        private float _shootTimer = 0f;
+        private int _screenHeight;
+        private int _screenWidth;
 
         public Player(
             Texture2D texturePlayer, // Stationary texture
@@ -64,6 +75,17 @@ namespace RPG.Physical
             _currentTexture = _texturePlayer; // Default to stationary texture
         }
 
+        public void LoadProjectileContent(
+            Texture2D projectileTexture,
+            int screenWidth,
+            int screenHeight
+        )
+        {
+            _projectileTexture = projectileTexture;
+            _screenWidth = screenWidth;
+            _screenHeight = screenHeight;
+        }
+
         public void SetPosition(float x, float y)
         {
             Position = new Vector2(x, y);
@@ -72,40 +94,103 @@ namespace RPG.Physical
         public void Update(GameTime gameTime)
         {
             var keyboardState = Keyboard.GetState();
+            var gamePadState = GamePad.GetState(PlayerIndex.One); // For player 1 controller
             float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            // Handle movement and animation
+            // Reset movement vector each frame
+            Vector2 movement = Vector2.Zero;
+            bool isMoving = false;
+
+            // Handle keyboard movement input
             if (keyboardState.IsKeyDown(Keys.Up))
+                movement.Y -= 1;
+            if (keyboardState.IsKeyDown(Keys.Down))
+                movement.Y += 1;
+            if (keyboardState.IsKeyDown(Keys.Left))
+                movement.X -= 1;
+            if (keyboardState.IsKeyDown(Keys.Right))
+                movement.X += 1;
+
+            // Handle gamepad movement input (left thumbstick)
+            if (gamePadState.IsConnected)
             {
-                SetPosition(Position.X, Position.Y - speed * deltaTime);
-                Animate(gameTime, _upFrames);
-                _currentTexture = _textureUp;
+                Vector2 thumbstick = gamePadState.ThumbSticks.Left;
+                thumbstick.Y *= -1; // Invert Y axis to match screen coordinates
+
+                // Add controller input with deadzone check (ignore small movements)
+                if (thumbstick.Length() > 0.2f)
+                {
+                    movement += thumbstick;
+                }
+
+                // Optional: Add D-pad support
+                if (gamePadState.DPad.Up == ButtonState.Pressed)
+                    movement.Y -= 1;
+                if (gamePadState.DPad.Down == ButtonState.Pressed)
+                    movement.Y += 1;
+                if (gamePadState.DPad.Left == ButtonState.Pressed)
+                    movement.X -= 1;
+                if (gamePadState.DPad.Right == ButtonState.Pressed)
+                    movement.X += 1;
             }
-            else if (keyboardState.IsKeyDown(Keys.Down))
+
+            // Check if any movement occurred
+            isMoving = movement != Vector2.Zero;
+
+            // Normalize and apply movement
+            if (isMoving)
             {
-                SetPosition(Position.X, Position.Y + speed * deltaTime);
-                Animate(gameTime, _downFrames);
-                _currentTexture = _textureDown;
+                movement.Normalize();
+                SetPosition(
+                    Position.X + movement.X * speed * deltaTime,
+                    Position.Y + movement.Y * speed * deltaTime
+                );
             }
-            else if (keyboardState.IsKeyDown(Keys.Left))
+
+            // Handle animation based on primary direction
+            if (isMoving)
             {
-                SetPosition(Position.X - speed * deltaTime, Position.Y);
-                Animate(gameTime, _leftFrames);
-                _currentTexture = _textureLeft;
-            }
-            else if (keyboardState.IsKeyDown(Keys.Right))
-            {
-                SetPosition(Position.X + speed * deltaTime, Position.Y);
-                Animate(gameTime, _rightFrames);
-                _currentTexture = _textureRight;
+                // Determine primary direction for animation
+                if (Math.Abs(movement.X) > Math.Abs(movement.Y))
+                {
+                    // Horizontal movement dominant
+                    if (movement.X > 0)
+                    {
+                        Animate(gameTime, _rightFrames);
+                        _currentTexture = _textureRight;
+                    }
+                    else
+                    {
+                        Animate(gameTime, _leftFrames);
+                        _currentTexture = _textureLeft;
+                    }
+                }
+                else
+                {
+                    // Vertical movement dominant
+                    if (movement.Y > 0)
+                    {
+                        Animate(gameTime, _downFrames);
+                        _currentTexture = _textureDown;
+                    }
+                    else
+                    {
+                        Animate(gameTime, _upFrames);
+                        _currentTexture = _textureUp;
+                    }
+                }
             }
             else
             {
-                // Reset to the stationary texture and frame if no movement
+                // Reset to stationary frame
                 _currentFrame = 0;
-                _sourceRectangle = new Rectangle(0, 0, _frameSize, _frameSize); // Stationary frame
-                _currentTexture = _texturePlayer; // Use stationary texture
+                _sourceRectangle = new Rectangle(0, 0, _frameSize, _frameSize);
+                _currentTexture = _texturePlayer;
             }
+
+            // Projectile Updates
+            UpdateShooting(gameTime);
+            UpdateProjectiles(gameTime);
         }
 
         private void Animate(GameTime gameTime, Rectangle[] frames)
@@ -138,6 +223,72 @@ namespace RPG.Physical
                 SpriteEffects.None,
                 0f
             );
+        }
+
+        private void UpdateShooting(GameTime gameTime)
+        {
+            _shootTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            var gamePadState = GamePad.GetState(PlayerIndex.One);
+            bool tryToShoot = gamePadState.Triggers.Right > 0.5f;
+
+            if (tryToShoot && _shootTimer <= 0)
+            {
+                Vector2 aimDirection = gamePadState.ThumbSticks.Right;
+                aimDirection.Y *= -1; // Invert Y axis
+
+                // If not aiming with thumbstick, shoot in facing direction
+                if (aimDirection == Vector2.Zero)
+                {
+                    // Use player's facing direction (you'll need to track this)
+                    if (_currentTexture == _textureUp)
+                        aimDirection = new Vector2(0, -1);
+                    else if (_currentTexture == _textureDown)
+                        aimDirection = new Vector2(0, 1);
+                    else if (_currentTexture == _textureLeft)
+                        aimDirection = new Vector2(-1, 0);
+                    else if (_currentTexture == _textureRight)
+                        aimDirection = new Vector2(1, 0);
+                }
+
+                if (aimDirection != Vector2.Zero)
+                {
+                    Shoot(aimDirection);
+                    _shootTimer = _shootCooldown;
+                }
+            }
+        }
+
+        private void Shoot(Vector2 direction)
+        {
+            direction.Normalize();
+            Vector2 spawnPosition =
+                Position + new Vector2(_frameSize / 2) - new Vector2(_projectileTexture.Width / 2);
+
+            Projectile projectile = _projectiles.FirstOrDefault(p => !p.IsActive);
+            if (projectile == null)
+            {
+                projectile = new Projectile(_screenWidth, _screenHeight);
+                _projectiles.Add(projectile);
+            }
+
+            projectile.Initialize(_projectileTexture, spawnPosition, direction);
+        }
+
+        private void UpdateProjectiles(GameTime gameTime)
+        {
+            foreach (var projectile in _projectiles)
+            {
+                projectile.Update(gameTime);
+            }
+        }
+
+        public void DrawProjectiles(SpriteBatch spriteBatch)
+        {
+            foreach (var projectile in _projectiles.Where(p => p.IsActive))
+            {
+                projectile.Draw(spriteBatch);
+            }
         }
     }
 }

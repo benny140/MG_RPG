@@ -72,6 +72,9 @@ public class Game1 : Game
             96
         );
 
+        // Load the Projectiles
+        _player.LoadProjectileContent(_textureBall, 2496, 2496);
+
         // Initialize the camera
         _camera = new Camera(Vector2.Zero, 0, Vector2.One);
     }
@@ -106,16 +109,11 @@ public class Game1 : Game
     {
         GraphicsDevice.Clear(Color.CornflowerBlue);
 
-        // _spriteBatch.Begin();
         // Begin drawing with the camera's view matrix
         _spriteBatch.Begin(transformMatrix: _camera.View());
-
-        // Draw the background
         _spriteBatch.Draw(_textureBackground, new Vector2(0, 0), Color.White);
-
-        // Draw the player
         _player.Draw(_spriteBatch);
-
+        _player.DrawProjectiles(_spriteBatch);
         _spriteBatch.End();
 
         base.Draw(gameTime);
