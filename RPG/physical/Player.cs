@@ -31,10 +31,12 @@ namespace RPG.Physical
         // Projectile Fields
         private Texture2D _projectileTexture;
         private List<Projectile> _projectiles = new List<Projectile>();
-        private float _shootCooldown = 0.2f;
+        private readonly float _shootCooldown = 0.2f;
         private float _shootTimer = 0f;
         private int _screenHeight;
         private int _screenWidth;
+        private Vector2 _lastAimDirection = Vector2.Zero;
+        private const float DeadzoneThreshold = 0.2f;
 
         public Player(
             Texture2D texturePlayer, // Stationary texture
@@ -232,23 +234,23 @@ namespace RPG.Physical
             var gamePadState = GamePad.GetState(PlayerIndex.One);
             bool tryToShoot = gamePadState.Triggers.Right > 0.5f;
 
+            // Get current right thumbstick input
+            Vector2 aimDirection = gamePadState.ThumbSticks.Right;
+            aimDirection.Y *= -1; // Invert Y axis if needed
+
+            // Only update last aim direction if input exceeds the deadzone
+            if (aimDirection.Length() > DeadzoneThreshold)
+            {
+                _lastAimDirection = aimDirection;
+                _lastAimDirection.Normalize(); // Ensures consistent knockback/shooting
+            }
+
             if (tryToShoot && _shootTimer <= 0)
             {
-                Vector2 aimDirection = gamePadState.ThumbSticks.Right;
-                aimDirection.Y *= -1; // Invert Y axis
-
-                // If not aiming with thumbstick, shoot in facing direction
-                if (aimDirection == Vector2.Zero)
+                // If not actively aiming, use last recorded aim direction (if any)
+                if (aimDirection.Length() <= DeadzoneThreshold && _lastAimDirection != Vector2.Zero)
                 {
-                    // Use player's facing direction (you'll need to track this)
-                    if (_currentTexture == _textureUp)
-                        aimDirection = new Vector2(0, -1);
-                    else if (_currentTexture == _textureDown)
-                        aimDirection = new Vector2(0, 1);
-                    else if (_currentTexture == _textureLeft)
-                        aimDirection = new Vector2(-1, 0);
-                    else if (_currentTexture == _textureRight)
-                        aimDirection = new Vector2(1, 0);
+                    aimDirection = _lastAimDirection;
                 }
 
                 if (aimDirection != Vector2.Zero)
@@ -262,8 +264,8 @@ namespace RPG.Physical
         private void Shoot(Vector2 direction)
         {
             direction.Normalize();
-            Vector2 spawnPosition =
-                Position + new Vector2(_frameSize / 2) - new Vector2(_projectileTexture.Width / 2);
+            Vector2 spawnPosition = Position - new Vector2(_frameSize / 2);
+            // Position + new Vector2(_frameSize / 2) - new Vector2(_projectileTexture.Width / 2);
 
             Projectile projectile = _projectiles.FirstOrDefault(p => !p.IsActive);
             if (projectile == null)

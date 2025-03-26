@@ -41,10 +41,10 @@ public class Projectile
 
         // Use the stored screen dimensions
         if (
-            Position.X < 0
-            || Position.X > _screenWidth
-            || Position.Y < 0
-            || Position.Y > _screenHeight
+            Position.X < 0 - Texture.Width / 2
+            || Position.X > _screenWidth - Texture.Width / 2
+            || Position.Y < 0 - Texture.Width / 2
+            || Position.Y > _screenHeight - Texture.Width / 2
         )
         {
             IsActive = false;
