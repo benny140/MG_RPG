@@ -1,0 +1,9 @@
+Source File,Dest File,Processor Type,Content Type,Source File Size,Dest File Size,Build Seconds
+"c:/Users/benja/Projects/MG_RPG/RPG/Content/background.png","c:/Users/benja/Projects/MG_RPG/RPG/Content/bin/DesktopGL/background.xnb","TextureProcessor","Texture2DContent",70634,24920149,0.66636
+"c:/Users/benja/Projects/MG_RPG/RPG/Content/ball.png","c:/Users/benja/Projects/MG_RPG/RPG/Content/bin/DesktopGL/ball.xnb","TextureProcessor","Texture2DContent",699,36949,0.0043763
+"c:/Users/benja/Projects/MG_RPG/RPG/Content/Player/player.png","c:/Users/benja/Projects/MG_RPG/RPG/Content/bin/DesktopGL/Player/player.xnb","TextureProcessor","Texture2DContent",1072,36949,0.0948155
+"c:/Users/benja/Projects/MG_RPG/RPG/Content/Player/walkDown.png","c:/Users/benja/Projects/MG_RPG/RPG/Content/bin/DesktopGL/Player/walkDown.xnb","TextureProcessor","Texture2DContent",5078,147541,0.009818
+"c:/Users/benja/Projects/MG_RPG/RPG/Content/Player/walkLeft.png","c:/Users/benja/Projects/MG_RPG/RPG/Content/bin/DesktopGL/Player/walkLeft.xnb","TextureProcessor","Texture2DContent",5640,147541,0.0107434
+"c:/Users/benja/Projects/MG_RPG/RPG/Content/Player/walkRight.png","c:/Users/benja/Projects/MG_RPG/RPG/Content/bin/DesktopGL/Player/walkRight.xnb","TextureProcessor","Texture2DContent",5308,147541,0.0053747
+"c:/Users/benja/Projects/MG_RPG/RPG/Content/Player/walkUp.png","c:/Users/benja/Projects/MG_RPG/RPG/Content/bin/DesktopGL/Player/walkUp.xnb","TextureProcessor","Texture2DContent",4574,147541,0.0066276
+"c:/Users/benja/Projects/MG_RPG/RPG/Content/skull.png","c:/Users/benja/Projects/MG_RPG/RPG/Content/bin/DesktopGL/skull.xnb","TextureProcessor","Texture2DContent",9601,506965,0.0177828
