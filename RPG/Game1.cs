@@ -1,5 +1,4 @@
-﻿using System;
-using Dcrew.Camera;
+﻿using Dcrew.Camera;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -94,39 +93,39 @@ public class Game1 : Game
         // Camera Start ==============================================================================
         // Update the camera to follow the player (with deadzone)
         Vector2 playerPosition = _player.Position;
-        Vector2 cameraPosition = _camera.XY; // Current camera position
+        Vector2 cameraPosition = _camera.XY;
 
         // Define deadzone bounds (adjust values as needed)
-        float deadzoneWidth = 20f; // Horizontal deadzone size
-        float deadzoneHeight = 15f; // Vertical deadzone size
+        float deadzoneWidth = 320f; // Horizontal deadzone size
+        float deadzoneHeight = 180f; // Vertical deadzone size
 
-        // Calculate player's distance from camera center (not top-left)
-        float deltaX = playerPosition.X - (cameraPosition.X + screenWidth / 2);
-        float deltaY = playerPosition.Y - (cameraPosition.Y + screenHeight / 2);
+        // Calculate player's distance from camera center
+        float deltaX = playerPosition.X - cameraPosition.X;
+        float deltaY = playerPosition.Y - cameraPosition.Y;
 
-        // Apply deadzone: Only move camera if player is outside deadzone
-        if (MathF.Abs(deltaX) > deadzoneWidth / 2)
+        // X-axis deadzone
+        if (deltaX > deadzoneWidth)
         {
-            cameraPosition.X =
-                playerPosition.X - (screenWidth / 2) + (deadzoneWidth / 2 * MathF.Sign(deltaX));
+            cameraPosition.X = playerPosition.X - deadzoneWidth;
         }
-        if (MathF.Abs(deltaY) > deadzoneHeight / 2)
+        else if (deltaX < -deadzoneWidth)
         {
-            cameraPosition.Y =
-                playerPosition.Y - (screenHeight / 2) + (deadzoneHeight / 2 * MathF.Sign(deltaY));
+            cameraPosition.X = playerPosition.X + deadzoneWidth;
+        }
+
+        // Y-axis deadzone
+        if (deltaY > deadzoneHeight)
+        {
+            cameraPosition.Y = playerPosition.Y - deadzoneHeight;
+        }
+        else if (deltaY < -deadzoneHeight)
+        {
+            cameraPosition.Y = playerPosition.Y + deadzoneHeight;
         }
 
         // Clamp the camera position to the background bounds
-        cameraPosition.X = MathHelper.Clamp(
-            cameraPosition.X,
-            0,
-            _textureBackground.Width - screenWidth
-        );
-        cameraPosition.Y = MathHelper.Clamp(
-            cameraPosition.Y,
-            0,
-            _textureBackground.Height - screenHeight
-        );
+        cameraPosition.X = MathHelper.Clamp(cameraPosition.X, 0, _textureBackground.Width);
+        cameraPosition.Y = MathHelper.Clamp(cameraPosition.Y, 0, _textureBackground.Height);
 
         _camera.XY = cameraPosition;
         // Camera End ===============================================================================
