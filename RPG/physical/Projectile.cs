@@ -8,7 +8,7 @@ public class Projectile
     public Texture2D Texture { get; set; }
     public Vector2 Position { get; set; }
     public Vector2 Velocity { get; set; }
-    public float Speed { get; set; } = 1000f;
+    public float Speed { get; set; } = 500f;
     public bool IsActive { get; set; }
     public Rectangle Bounds =>
         new Rectangle((int)Position.X, (int)Position.Y, Texture.Width, Texture.Height);

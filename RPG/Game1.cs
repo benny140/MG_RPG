@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using RPG.Manager;
 using RPG.Physical;
 
 namespace RPG;
@@ -27,10 +28,11 @@ public class Game1 : Game
     private Texture2D _textureBackground;
     private Texture2D _textureBall;
     private Texture2D _textureSkull;
+    private int _mapSize = 2496;
 
     // Declare Physical Objects
     private Player _player;
-    private Enemy _enemy;
+    private EnemyManager _enemyManager;
 
     public Game1()
     {
@@ -69,15 +71,15 @@ public class Game1 : Game
             _textureWalkDown,
             _textureWalkLeft,
             _textureWalkRight,
-            new Vector2(100, 100),
+            new Vector2(500, 500),
             96
         );
 
         // Load the Enemy
-        _enemy = new Enemy(_textureSkull, new Vector2(1000, 1000), _player, 10);
+        _enemyManager = new EnemyManager(_textureSkull, _player, 5, _mapSize, _mapSize);
 
         // Load the Projectiles
-        _player.LoadProjectileContent(_textureBall, 2496, 2496);
+        _player.LoadProjectileContent(_textureBall, _mapSize, _mapSize);
 
         // Initialize the camera
         _camera = new Camera(Vector2.Zero, 0, Vector2.One);
@@ -95,7 +97,7 @@ public class Game1 : Game
         _player.Update(gameTime);
 
         // Update the enemy
-        _enemy.Update(gameTime);
+        _enemyManager.Update(gameTime);
 
         // Camera Start ==============================================================================
         // Update the camera to follow the player (with deadzone)
@@ -149,7 +151,7 @@ public class Game1 : Game
         _spriteBatch.Draw(_textureBackground, new Vector2(0, 0), Color.White);
         _player.Draw(_spriteBatch);
         _player.DrawProjectiles(_spriteBatch);
-        _enemy.Draw(_spriteBatch);
+        _enemyManager.Draw(_spriteBatch);
         _spriteBatch.End();
 
         base.Draw(gameTime);

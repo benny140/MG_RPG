@@ -26,7 +26,7 @@ namespace RPG.Physical
         private Vector2 _origin;
         private readonly int _frameSize;
         private Texture2D _currentTexture;
-        private readonly float speed = 500f; // pixels per second
+        private readonly float speed = 250f; // pixels per second
 
         // Projectile Fields
         private Texture2D _projectileTexture;

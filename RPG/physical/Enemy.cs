@@ -7,7 +7,7 @@ public class Enemy
 {
     // Texture and position
     private readonly Texture2D _spriteSheet;
-    private Vector2 _position;
+    public Vector2 Position;
 
     // Animation properties
     private int _currentFrame;
@@ -18,7 +18,7 @@ public class Enemy
     private int FrameHeight;
 
     // Movement properties
-    private float _speed = 100f;
+    public float Speed { get; private set; } = 100f;
     private Vector2 _size => new Vector2(FrameWidth, FrameHeight);
 
     // Reference to the player
@@ -27,7 +27,7 @@ public class Enemy
     public Enemy(Texture2D spriteSheet, Vector2 startingPosition, Player player, int frameCount)
     {
         _spriteSheet = spriteSheet;
-        _position = startingPosition;
+        Position = startingPosition;
         _player = player;
         _currentFrame = 0;
         _frameTimer = 0;
@@ -43,7 +43,7 @@ public class Enemy
     public void Update(GameTime gameTime)
     {
         // Calculate direction to player
-        Vector2 direction = _player.Position - _position - _size / 2;
+        Vector2 direction = _player.Position - Position - _size / 2;
         bool isMoving = direction != Vector2.Zero;
 
         // Only animate when moving
@@ -61,7 +61,7 @@ public class Enemy
 
             // Move towards player
             float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            _position += direction * _speed * deltaTime;
+            Position += direction * Speed * deltaTime;
         }
         else
         {
@@ -84,7 +84,7 @@ public class Enemy
 
             spriteBatch.Draw(
                 _spriteSheet,
-                _position,
+                Position,
                 sourceRect,
                 Color.White,
                 0f,
