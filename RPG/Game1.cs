@@ -30,6 +30,7 @@ public class Game1 : Game
 
     // Declare Physical Objects
     private Player _player;
+    private Enemy _enemy;
 
     public Game1()
     {
@@ -72,6 +73,9 @@ public class Game1 : Game
             96
         );
 
+        // Load the Enemy
+        _enemy = new Enemy(_textureSkull, new Vector2(1000, 1000), _player, 10);
+
         // Load the Projectiles
         _player.LoadProjectileContent(_textureBall, 2496, 2496);
 
@@ -90,14 +94,17 @@ public class Game1 : Game
         // Update the player
         _player.Update(gameTime);
 
+        // Update the enemy
+        _enemy.Update(gameTime);
+
         // Camera Start ==============================================================================
         // Update the camera to follow the player (with deadzone)
         Vector2 playerPosition = _player.Position;
         Vector2 cameraPosition = _camera.XY;
 
         // Define deadzone bounds (adjust values as needed)
-        float deadzoneWidth = 320f; // Horizontal deadzone size
-        float deadzoneHeight = 180f; // Vertical deadzone size
+        float deadzoneWidth = 480f; // Horizontal deadzone size
+        float deadzoneHeight = 270f; // Vertical deadzone size
 
         // Calculate player's distance from camera center
         float deltaX = playerPosition.X - cameraPosition.X;
@@ -142,6 +149,7 @@ public class Game1 : Game
         _spriteBatch.Draw(_textureBackground, new Vector2(0, 0), Color.White);
         _player.Draw(_spriteBatch);
         _player.DrawProjectiles(_spriteBatch);
+        _enemy.Draw(_spriteBatch);
         _spriteBatch.End();
 
         base.Draw(gameTime);
